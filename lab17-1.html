@@ -1,0 +1,341 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab17-1</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 380px;
+            max-width: 95%;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-top: 0;
+        }
+
+        .menu {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .menu button {
+            flex: 1;
+            padding: 10px 5px;
+            border: none;
+            background: #eee;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .menu button:hover,
+        .menu button.active {
+            background: #667eea;
+            color: white;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #444;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            background: #c96262;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            background: #cb5555;
+        }
+
+        .link {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: #bf414f;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            overflow-wrap: anywhere;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .welcome {
+            text-align: center;
+        }
+
+        .logout-btn {
+            background: #7d3bc8;
+        }
+
+        .logout-btn:hover {
+            background: #9428c6;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2 id="pageTitle">Login Page</h2>
+
+    <div class="menu" id="menu">
+        <button class="active" onclick="showPage('login')">
+            Login
+        </button>
+        <button onclick="showPage('register')">
+            Register
+        </button>
+        <button onclick="showPage('forgot')">
+            Forgot Password
+        </button>
+    </div>
+
+    
+    <form id="loginForm">
+        <label>Email Address</label>
+        <input type="email" id="loginEmail" placeholder="Enter your email" required>
+
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter your password" required>
+
+        <button type="submit" class="submit-btn">Login</button>
+
+        <a class="link" onclick="showPage('forgot')">
+            Forgot Password?
+        </a>
+
+        <a class="link" onclick="showPage('register')">
+            Don't have an account? Register
+        </a>
+    </form>
+
+   
+    <form id="registerForm" class="hidden">
+        <label>Full Name</label>
+        <input type="text" id="regName"
+               placeholder="Enter your name" required>
+
+        <label>Email Address</label>
+        <input type="email" id="regEmail"
+               placeholder="Enter your email" required>
+
+        <label>Password</label>
+        <input type="password" id="regPassword"
+               placeholder="Create a password"
+               minlength="6" required>
+
+        <label>Confirm Password</label>
+        <input type="password" id="confirmPassword"
+               placeholder="Confirm your password" required>
+
+        <button type="submit" class="submit-btn">
+            Create Account
+        </button>
+
+        <a class="link" onclick="showPage('login')">
+            Already have an account? Login
+        </a>
+    </form>
+
+   
+    <form id="forgotForm" class="hidden">
+        <p>Enter your registered email and create a new password.</p>
+
+        <label>Email Address</label>
+        <input type="email" id="forgotEmail"
+               placeholder="Enter your registered email" required>
+
+        <label>New Password</label>
+        <input type="password" id="newPassword"
+               placeholder="Enter new password"
+               minlength="6" required>
+
+        <label>Confirm New Password</label>
+        <input type="password" id="confirmNewPassword"
+               placeholder="Confirm new password" required>
+
+        <button type="submit" class="submit-btn">
+            Reset Password
+        </button>
+
+        <a class="link" onclick="showPage('login')">
+            Back to Login
+        </a>
+    </form>
+
+   
+    <div id="dashboard" class="hidden welcome">
+        <h2>Welcome!</h2>
+        <p>You have successfully logged in.</p>
+        <p id="userName"></p>
+
+        <button class="submit-btn logout-btn"
+                onclick="logout()">
+            Logout
+        </button>
+    </div>
+
+    <p id="message" class="message" role="status"
+       aria-live="polite"></p>
+
+</div>
+
+<script>
+            // Get saved users from localStorage
+            function getUsers() {
+                try {
+                    return JSON.parse(localStorage.getItem("users")) || [];
+                } catch {
+                    return [];
+                }
+            }
+        
+            function saveUsers(users) {
+                localStorage.setItem("users", JSON.stringify(users));
+            }
+        
+            // Display a particular page
+            function showPage(page, button) {
+                document.getElementById("loginForm").classList.add("hidden");
+                document.getElementById("registerForm").classList.add("hidden");
+                document.getElementById("forgotForm").classList.add("hidden");
+                document.getElementById("dashboard").classList.add("hidden");
+        
+                document.getElementById("menu").classList.remove("hidden");
+                document.getElementById("message").textContent = "";
+        
+                document.querySelectorAll(".menu button").forEach(btn => {
+                    btn.classList.remove("active");
+                });
+        
+                if (page === "login") {
+                    document.getElementById("loginForm").classList.remove("hidden");
+                    document.getElementById("pageTitle").textContent = "Login Page";
+                } else if (page === "register") {
+                    document.getElementById("registerForm").classList.remove("hidden");
+                    document.getElementById("pageTitle").textContent = "Registration Page";
+                } else if (page === "forgot") {
+                    document.getElementById("forgotForm").classList.remove("hidden");
+                    document.getElementById("pageTitle").textContent = "Forgot Password";
+                }
+        
+                if (button) button.classList.add("active");
+            }
+        
+            // Registration
+            document.getElementById("registerForm").addEventListener("submit", function(e) {
+                e.preventDefault();
+        
+                const name = document.getElementById("regName").value.trim();
+                const email = document.getElementById("regEmail").value.trim().toLowerCase();
+                const password = document.getElementById("regPassword").value;
+                const confirm = document.getElementById("confirmPassword").value;
+                const message = document.getElementById("message");
+        
+                if (password !== confirm) {
+                    message.textContent = "Passwords do not match!";
+                    message.style.color = "red";
+                    return;
+                }
+        
+                const users = getUsers();
+        
+                if (users.some(user => user.email === email)) {
+                    message.textContent = "This email is already registered!";
+                    message.style.color = "red";
+                    return;
+                }
+        
+                users.push({ name, email, password });
+                saveUsers(users);
+        
+                message.textContent = "Registration successful! Please login.";
+                message.style.color = "green";
+        
+                this.reset();
+        
+                setTimeout(() => showPage("login"), 1200);
+            });
+        
+            // Login
+            document.getElementById("loginForm").addEventListener("submit", function(e) {
+                e.preventDefault();
+        
+                const email = document.getElementById("loginEmail").value.trim().toLowerCase();
+                const password = document.getElementById("loginPassword").value;
+        
+                const users = getUsers();
+                const user = users.find(
+                    user => user.email === email && user.password === password
+                );
+        
+                const message = document.getElementById("message");
+        
+                if (!user) {
+                    message.textContent = "Invalid email or password!";
+                    message.style.color = "red";
+                    return;
+                }
+        
+                // Store the login session for this browser tab
+                sessionStorage.setItem("loggedInEmail", user.email);
+                displayDashboard(user);
+            });
+        
+            
+            
+        </script>
+        
+</body>
+</html>
